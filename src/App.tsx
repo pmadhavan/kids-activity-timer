@@ -1,7 +1,9 @@
 import './App.css';
+import ActivityPage from './ActivityPage';
 
 function App() {
-  return <h1>React Typescript starter Project</h1>;
+
+  return (<ActivityPage />)
 }
 
 export default App;

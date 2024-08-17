@@ -1,0 +1,21 @@
+.main-activity-container{
+    display: flex;
+    flex-direction: column;
+    padding: 0.25rem;
+    margin: 1rem;
+    gap: 16px;
+    align-items: center;
+}
+
+.activity-image-container{
+    width: 500px;
+    height: 500px;
+    border: 1px solid #eee;
+    border-radius:25px;
+}
+
+.next-prev-activity-container{
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}

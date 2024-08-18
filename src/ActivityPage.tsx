@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 
 interface ActivityComponentProps{
 activities: ActivityData[];
@@ -11,24 +12,58 @@ interface ActivityData{
     "end_time": string,
     "image": string
 }
-const Activity = ({activities}:ActivityComponentProps)=>{
-    let currentActivity: ActivityData|undefined;
-    currentActivity = activities.find((activity:ActivityData) =>{
-        let {start_time, end_time, id} = activity
-        let currentTime = Date.now();
-        let startTime = Date.parse(start_time);
-        let endTime = Date.parse(end_time);
+const mockActivity = {
+    id: 111,
+    start_time: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+    duration: "2 hours",
+    end_time: new Date(Date.now() + 1* 60 * 1000).toISOString(),
+    activity_name: "dummmy",
+    image: ""
+}
 
-        const mockActivity = {
-            id: 111,
-            start_time:new Date(new Date(currentTime).getTime() - 30 * 60 * 1000),
-            end_time:new Date(new Date(currentTime).getTime() + 30 * 60 * 1000),
-            activity_name: "dummmy"
+const Activity = ({activities}:ActivityComponentProps)=>{
+    const [currentProgress, setCurrentProgress] = useState(0);
+    const [timeLeft, setTimeLeft] = useState(0);
+    const [currentActivity, setCurrentActivity] = useState<ActivityData | undefined>();
+  
+
+    const calcProgress = (currTime:number, startTime:number, totalDuration:number)=>{
+    return ((currTime - startTime)/ totalDuration)*100
+    }
+    const calcTimeLeft = (currTime:number, endTime:number) => {
+        let minutes = 60*1000;
+        return Math.floor((endTime - currTime)/minutes)
+    }
+
+    const findCurrActivity = (activities:ActivityData[], currentTime:number) => {
+        let   currentActivity = activities.find((activity:ActivityData) =>{
+            let {start_time, end_time} = activity
+            let startTime = Date.parse(start_time);
+            let endTime = Date.parse(end_time);
+            return currentTime >= startTime && currentTime <= endTime
+        }) || mockActivity;
+        return currentActivity;
+    }
+     useEffect(() => {
+       const {start_time, end_time} = currentActivity || {};
+       const parsedStartTime = start_time ? Date.parse(start_time): 0;
+       const parsedEndTime = end_time ? Date.parse(end_time): 0;
+        let totalDuration = parsedEndTime - parsedStartTime;
+
+        setCurrentProgress(calcProgress(Date.now(), parsedStartTime, totalDuration));
+        setTimeLeft(calcTimeLeft(Date.now(), parsedEndTime));
+        setCurrentActivity(findCurrActivity(activities, Date.now()));
+        let intervalId = setInterval(() => {
+            setCurrentProgress(calcProgress(Date.now(), parsedStartTime, totalDuration));
+            setTimeLeft(calcTimeLeft(Date.now(),parsedEndTime));
+            setCurrentActivity(findCurrActivity(activities, Date.now()));
+        },3000)
+
+        return () => {
+            clearInterval(intervalId);
         }
-        console.log(currentTime >= startTime && currentTime <= endTime ? activity: mockActivity)
-        return currentTime >= startTime && currentTime <= endTime ? activity: mockActivity
-    })
-    
+     }, []);
+
     return (
         <div className={'main-activity-container'}>
             {currentActivity ? <> <div className="activity-title">
@@ -38,8 +73,8 @@ const Activity = ({activities}:ActivityComponentProps)=>{
                 <img src={currentActivity.image} alt={currentActivity.activity_name} width='100%' height="100%" />
             </div>
             <div className="activity-progress-container">
-                <progress max={100} value={25}/>
-                <div> Time Left: {'remainingTime'}</div>
+                <progress max={100} value={currentProgress}/>
+                <div> Time Left: {timeLeft} minutes</div>
             </div>
             <div className="next-prev-activity-container">
             <div className="prev"> P</div>
@@ -57,40 +92,40 @@ const ActivityPage = ()=>{
             "id": 101,
             "activity_name": "Yoga Session",
             "duration": "60 minutes",
-            "start_time": "2024-08-16T07:00:00",
-            "end_time": "2024-08-16T08:00:00",
+            start_time: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+            end_time: new Date(Date.now() - 30* 60 * 1000).toISOString(),
             "image": "https://example.com/images/yoga_session.jpg"
         },
         {
             "id": 102,
             "activity_name": "Client Presentation",
             "duration": "90 minutes",
-            "start_time": "2024-08-16T10:00:00",
-            "end_time": "2024-08-16T11:30:00",
+            start_time: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+            end_time: new Date(Date.now() - 1* 60 * 1000).toISOString(),
             "image": "https://example.com/images/client_presentation.jpg"
         },
         {
             "id": 103,
             "activity_name": "Coding Session",
             "duration": "2 hours",
-            "start_time": "2024-08-16T12:00:00",
-            "end_time": "2024-08-16T15:00:00",
+            start_time: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+            end_time: new Date(Date.now() + 110* 60 * 1000).toISOString(),
             "image": "https://example.com/images/coding_session.jpg"
         },
         {
             "id": 104,
             "activity_name": "Evening Walk",
             "duration": "45 minutes",
-            "start_time": "2024-08-16T18:30:00",
-            "end_time": "2024-08-16T19:15:00",
+            start_time: new Date(Date.now() - 1 * 60 * 1000).toISOString(),
+            end_time: new Date(Date.now() + 44 * 60 * 1000).toISOString(),
             "image": "https://example.com/images/evening_walk.jpg"
         },
         {
             "id": 105,
             "activity_name": "Reading Time",
             "duration": "30 minutes",
-            "start_time": "2024-08-16T20:00:00",
-            "end_time": "2024-08-16T20:30:00",
+            start_time: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+            end_time: new Date(Date.now() + 25 * 60 * 1000).toISOString(),
             "image": "https://example.com/images/reading_time.jpg"
         }
     ];

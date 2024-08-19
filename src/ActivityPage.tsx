@@ -1,17 +1,11 @@
 import { useEffect, useState } from "react";
-
+import { ActivityData } from "./Activity";
+import ActivityPreview from './ActivityPreview'
 interface ActivityComponentProps{
 activities: ActivityData[];
 }
 
-interface ActivityData{
-    "id": number;
-    "activity_name": string,
-    "duration": string,
-    "start_time": string,
-    "end_time": string,
-    "image": string
-}
+
 const mockActivity = {
     id: 111,
     start_time: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
@@ -25,7 +19,9 @@ const Activity = ({activities}:ActivityComponentProps)=>{
     const [currentProgress, setCurrentProgress] = useState(0);
     const [timeLeft, setTimeLeft] = useState(0);
     const [currentActivity, setCurrentActivity] = useState<ActivityData | undefined>();
-  
+    const [prevActivity, setPrevActivity] = useState<ActivityData | undefined>();
+    const [nextActivity, setNextActivity] = useState<ActivityData | undefined>();
+
 
     const calcProgress = (currTime:number, startTime:number, totalDuration:number)=>{
     return ((currTime - startTime)/ totalDuration)*100
@@ -35,24 +31,30 @@ const Activity = ({activities}:ActivityComponentProps)=>{
         return Math.ceil((endTime - currTime)/minutes)
     }
 
-    const findCurrActivity = (activities:ActivityData[], currentTime:number) => {
-        let   currentActivity = activities.find((activity:ActivityData) =>{
+    const findRelatedActivities = (activities:ActivityData[], currentTime:number) => {
+        let   currentActivityIndex = activities.findIndex((activity:ActivityData) =>{
             let {start_time, end_time} = activity
             let startTime = Date.parse(start_time);
             let endTime = Date.parse(end_time);
             return currentTime >= startTime && currentTime <= endTime
-        }) || undefined;
-        return currentActivity;
+        });
+        let currentActivity = currentActivityIndex >= 0 ? activities[currentActivityIndex]: undefined;
+        let previousActivity = activities[currentActivityIndex-1];
+        let nextActivity = activities[currentActivityIndex+1];
+        return {currentActivity, previousActivity, nextActivity};
     }
     const updateCurrentActivityPage = (activities:ActivityData[], currentTime:number) => {
-        const {start_time, end_time} = findCurrActivity(activities, currentTime) || {};
+        const {currentActivity, nextActivity, previousActivity} = findRelatedActivities(activities, currentTime);
+        const {start_time, end_time} = currentActivity || {};
         const parsedStartTime = start_time ? Date.parse(start_time): 0;
         const parsedEndTime = end_time ? Date.parse(end_time): 0;
          let totalDuration = parsedEndTime - parsedStartTime;
  
          setCurrentProgress(calcProgress(currentTime, parsedStartTime, totalDuration));
          setTimeLeft(calcTimeLeft(currentTime, parsedEndTime));
-         setCurrentActivity(findCurrActivity(activities, currentTime));
+         setCurrentActivity(currentActivity);
+         setNextActivity(nextActivity);
+         setPrevActivity(previousActivity);
     }
      useEffect(() => {
       
@@ -79,8 +81,8 @@ const Activity = ({activities}:ActivityComponentProps)=>{
                 <div> Time Left: {timeLeft} second(s)</div>
             </div>
             <div className="next-prev-activity-container">
-            <div className="prev"> P</div>
-            <div className="next"> N</div>
+            <div className="prev"> <ActivityPreview activityPreview={prevActivity} /></div>
+            <div className="next">  <ActivityPreview activityPreview={nextActivity} /></div>
             </div> </>: <h2> Free Play!!</h2>}
             
         </div>

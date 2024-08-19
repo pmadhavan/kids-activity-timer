@@ -8,9 +8,7 @@
 }
 
 .activity-image-container{
-    width: 500px;
-    height: 500px;
-    border: 1px solid #eee;
+    padding: 1rem;
     border-radius:25px;
 }
 

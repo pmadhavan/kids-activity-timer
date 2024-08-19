@@ -31,8 +31,8 @@ const Activity = ({activities}:ActivityComponentProps)=>{
     return ((currTime - startTime)/ totalDuration)*100
     }
     const calcTimeLeft = (currTime:number, endTime:number) => {
-        let minutes = 60*1000;
-        return Math.floor((endTime - currTime)/minutes)
+        let minutes = 1000;
+        return Math.ceil((endTime - currTime)/minutes)
     }
 
     const findCurrActivity = (activities:ActivityData[], currentTime:number) => {
@@ -41,7 +41,7 @@ const Activity = ({activities}:ActivityComponentProps)=>{
             let startTime = Date.parse(start_time);
             let endTime = Date.parse(end_time);
             return currentTime >= startTime && currentTime <= endTime
-        }) || mockActivity;
+        }) || undefined;
         return currentActivity;
     }
     const updateCurrentActivityPage = (activities:ActivityData[], currentTime:number) => {
@@ -59,7 +59,7 @@ const Activity = ({activities}:ActivityComponentProps)=>{
         updateCurrentActivityPage(activities, Date.now())
         let intervalId = setInterval(() => {
             updateCurrentActivityPage(activities, Date.now())
-        },3000)
+        },1000)
 
         return () => {
             clearInterval(intervalId);
@@ -76,7 +76,7 @@ const Activity = ({activities}:ActivityComponentProps)=>{
             </div>
             <div className="activity-progress-container">
                 <progress max={100} value={currentProgress}/>
-                <div> Time Left: {timeLeft} minutes</div>
+                <div> Time Left: {timeLeft} second(s)</div>
             </div>
             <div className="next-prev-activity-container">
             <div className="prev"> P</div>
@@ -96,39 +96,39 @@ const ActivityPage = ()=>{
             "duration": "60 minutes",
             start_time: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
             end_time: new Date(Date.now() + 1* 60 * 1000).toISOString(),
-            "image": "https://example.com/images/yoga_session.jpg"
+            "image": "https://media.istockphoto.com/id/1554791030/photo/asian-chinese-woman-practicing-yoga-stretching-in-public-park-weekend-morning.webp?b=1&s=612x612&w=0&k=20&c=AJVGKN7CIicMfDWMMZ_k4ac8gA1QQR4i51Z90HdS1ZI="
         },
         {
             "id": 102,
-            "activity_name": "Client Presentation",
+            "activity_name": "Book Reading",
             "duration": "90 minutes",
             start_time: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
             end_time: new Date(Date.now() + 2* 60 * 1000).toISOString(),
-            "image": "https://example.com/images/client_presentation.jpg"
+            "image": "https://media.istockphoto.com/id/1805651010/photo/children-visiting-the-library.webp?b=1&s=612x612&w=0&k=20&c=5IWS03VsXvxFkddy4A6pbqKMJf8sOjPkr8YDilOMXNM="
         },
         {
             "id": 103,
-            "activity_name": "Coding Session",
+            "activity_name": "Lego Session",
             "duration": "2 hours",
             start_time: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
             end_time: new Date(Date.now() + 3* 60 * 1000).toISOString(),
-            "image": "https://example.com/images/coding_session.jpg"
+            "image": "https://media.istockphoto.com/id/606738068/photo/closeup-of-asian-kids-hand-playing-plastic-blocks-puzzle.webp?b=1&s=612x612&w=0&k=20&c=0mXAgl_eFcT5hvyvVwNX2ur3tmEwN4I4Hfk2rXJp740="
         },
         {
             "id": 104,
-            "activity_name": "Evening Walk",
+            "activity_name": "Outdoor Play",
             "duration": "45 minutes",
             start_time: new Date(Date.now() - 1 * 60 * 1000).toISOString(),
             end_time: new Date(Date.now() + 4* 60 * 1000).toISOString(),
-            "image": "https://example.com/images/evening_walk.jpg"
+            "image": "https://media.istockphoto.com/id/473313240/photo/children-playing-in-the-park-at-playground-and-communicating.webp?b=1&s=612x612&w=0&k=20&c=utdaIERjZ-pdiD7UqEFZKU7c6_q70vhJY3TFCHjnfEE="
         },
         {
             "id": 105,
-            "activity_name": "Reading Time",
+            "activity_name": "Crafts",
             "duration": "30 minutes",
             start_time: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
             end_time: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
-            "image": "https://example.com/images/reading_time.jpg"
+            "image": "https://media.istockphoto.com/id/2065808900/photo/girl-cutting-pieces-of-paper-and-smiling-at-home.webp?b=1&s=612x612&w=0&k=20&c=EXri4mgPWvffkEzcdW83LVmCq0v3a7S9dcQRRaumXyE="
         }
     ];
     return (<Activity activities={data}/>)
